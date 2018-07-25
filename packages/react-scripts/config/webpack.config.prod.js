@@ -20,7 +20,6 @@ const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const paths = require('./paths');
 const getClientEnvironment = require('./env');
 const getCustomConfig = require('./custom-react-scripts/config');
-const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
