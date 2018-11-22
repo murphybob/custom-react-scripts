@@ -1,3 +1,8 @@
+⚠️ This repo is **deprecated**. 
+
+Please use [react-app-rewired](https://github.com/timarney/react-app-rewired) if you want to customize CRA 1.  
+Please use [customize-cra](https://github.com/arackaf/customize-cra) if you want to customize CRA 2.
+
 # ☢ custom-react-scripts ☢
 Latest version of original react-scripts: **1.1.14**
 
