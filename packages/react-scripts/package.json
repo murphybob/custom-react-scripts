@@ -1,6 +1,6 @@
 {
   "name": "@murphybob/custom-react-scripts",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "description": "Configuration and scripts for create-react-app",
   "repository": "kitze/custom-react-scripts",
   "license": "MIT",
