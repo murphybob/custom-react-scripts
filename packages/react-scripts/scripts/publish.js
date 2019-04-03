@@ -10,10 +10,12 @@ const _ = require('lodash');
 const appRoot = require('app-root-path');
 const spawn = require('child_process').spawn;
 const program = require('commander');
+const recursive = require('recursive-readdir');
 
 const s3 = new S3({ apiVersion: '2006-03-01' });
 
 async function build(publicUrl) {
+  return;
   return new Promise((resolve, reject) => {
     const build = spawn('npm', ['run-script', 'build'], {
       env: { ...process.env, PUBLIC_URL: publicUrl },
@@ -43,17 +45,8 @@ async function uploadFileToS3(bucket, key, file, type) {
       Key: key,
       Body: fs.readFileSync(file),
       ACL: 'public-read',
-      ContentType: type,
     })
     .promise();
-}
-
-async function uploadJsFileToS3(bucket, key, file) {
-  return await uploadFileToS3(bucket, key, file, 'application/javascript');
-}
-
-async function uploadCssFileToS3(bucket, key, file) {
-  return await uploadFileToS3(bucket, key, file, 'text/css');
 }
 
 function deslashUrl(url) {
@@ -101,14 +94,19 @@ async function publish({
   localPath = localPath.replace(/\/$/, '');
   let jsFiles;
   let cssFiles;
+  let staticFiles;
   try {
-    const files = fs.readdirSync(localPath);
+    process.chdir(localPath);
+    const files = fs.readdirSync('.');
     jsFiles = files
       .filter(f => f.endsWith('.js') || (sourceMaps && f.endsWith('.js.map')))
       .filter(f => f !== 'service-worker.js');
     cssFiles = files.filter(
       f => f.endsWith('.css') || (sourceMaps && f.endsWith('.css.map'))
     );
+    if (files.includes('static')) {
+      staticFiles = await recursive(`static/`);
+    }
   } catch (e) {
     console.log("Couldn't read script path dir.");
     console.log(e.message);
@@ -120,22 +118,12 @@ async function publish({
     process.exit(1);
   }
 
-  const jsUploads = jsFiles.map(filename =>
-    uploadJsFileToS3(
-      s3Bucket,
-      `${versionS3Path}/${filename}`,
-      `${localPath}/${filename}`
+  const files = jsFiles.concat(cssFiles).concat(staticFiles);
+  await Promise.all(
+    files.map(filename =>
+      uploadFileToS3(s3Bucket, `${versionS3Path}/${filename}`, `${filename}`)
     )
   );
-  const cssUploads = cssFiles.map(filename =>
-    uploadCssFileToS3(
-      s3Bucket,
-      `${versionS3Path}/${filename}`,
-      `${localPath}/${filename}`
-    )
-  );
-  const uploads = jsUploads.concat(cssUploads);
-  await Promise.all(uploads);
 
   console.log('Deployment complete');
   console.log('Main script can now be found here:');

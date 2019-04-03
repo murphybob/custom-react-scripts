@@ -62,6 +62,7 @@
     "raf": "3.4.0",
     "react-dev-utils": "^5.0.3",
     "react-error-overlay": "^1.0.10",
+    "recursive-readdir": "^2.2.2",
     "resolve": "1.6.0",
     "sass-loader": "^6.0.6",
     "style-loader": "0.19.0",
