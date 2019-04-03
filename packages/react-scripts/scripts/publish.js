@@ -96,8 +96,7 @@ async function publish({
   let cssFiles;
   let staticFiles;
   try {
-    process.chdir(localPath);
-    const files = fs.readdirSync('.');
+    const files = fs.readdirSync(localPath);
     jsFiles = files
       .filter(f => f.endsWith('.js') || (sourceMaps && f.endsWith('.js.map')))
       .filter(f => f !== 'service-worker.js');
@@ -105,7 +104,12 @@ async function publish({
       f => f.endsWith('.css') || (sourceMaps && f.endsWith('.css.map'))
     );
     if (files.includes('static')) {
-      staticFiles = await recursive(`static/`);
+      const stripStartRegex = new RegExp(
+        `\^.?[\/]?${localPath.replace(/\.\//, '')}[\/]?`
+      );
+      staticFiles = (await recursive(`${localPath}/static/`)).map(filename =>
+        filename.replace(stripStartRegex, '')
+      );
     }
   } catch (e) {
     console.log("Couldn't read script path dir.");
